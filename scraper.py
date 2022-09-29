@@ -99,12 +99,12 @@ df['expires'] = pd.to_datetime(df['expires'])
 df['days_to_expiry'] = (df['expires'] - df['todays_date']).dt.days
 
 df['expiry_category'] = np.where(df['expires'] <= df['todays_date'], 'expired', 
-                            np.where((df['expires'] <= df['todays_date'] + pd.Timedelta(days=30)) & 
-                                    (df['expires'] > df['todays_date']), 'expires within 30 days',
-                            np.where((df['expires'] <= df['todays_date'] + pd.Timedelta(days=60)) & 
-                                    (df['expires'] > df['todays_date']), 'expires within 60 days',
-                            np.where((df['expires'] <= df['todays_date'] + pd.Timedelta(days=90)) & 
-                                    (df['expires'] > df['todays_date']), 'expires within 90 days','valid'))))
+    np.where((df['expires'] <= df['todays_date'] + pd.Timedelta(days=30)) & 
+            (df['expires'] > df['todays_date']), 'expires within 30 days',
+    np.where((df['expires'] <= df['todays_date'] + pd.Timedelta(days=60)) & 
+            (df['expires'] > df['todays_date']), 'expires within 60 days',
+    np.where((df['expires'] <= df['todays_date'] + pd.Timedelta(days=90)) & 
+            (df['expires'] > df['todays_date']), 'expires within 90 days','valid'))))
 
 # formatting
 df['todays_date'] = df['todays_date'].dt.date
