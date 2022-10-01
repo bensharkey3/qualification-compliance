@@ -1,37 +1,38 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: lambda function.
+Description: riotinto-qualification-compliance webscraping lambda function.
+
 Resources:
-  HelloWorldLambda:
+  RiotintoQualificationComplianceLambda:
     Type: AWS::Lambda::Function
     Properties:
-      FunctionName: hello-world
-      Description: "runs a lambda hello world"
+      FunctionName: riotinto-qualification-compliance
+      Description: "runs a lambda for riotinto-qualification-compliance"
       Runtime: python3.8
-      Handler: hello-world-lambda.lambda_handler
+      Handler: riotinto-qualification-compliance.lambda_handler
       Timeout: 120
       Role: arn:aws:iam::537808241319:role/service-role/account_balances_scraper_role
       Code:
         S3Bucket: lambda-cloudformation-sourcecode-bucket
-        S3Key: "hello-world-lambda/python-code.zip"
+        S3Key: "riotinto-qualification-compliance/scraper.zip"
 
   ScheduledRule: 
     Type: AWS::Events::Rule
     Properties: 
       Description: "ScheduledRule"
-      ScheduleExpression: "rate(2 minutes)"
+      ScheduleExpression: "rate(1 hour)"
       State: "ENABLED"
       Targets: 
         - 
           Arn: 
             Fn::GetAtt: 
-              - "HelloWorldLambda"
+              - "RiotintoQualificationComplianceLambda"
               - "Arn"
-          Id: "HelloWorldLambda"
+          Id: "RiotintoQualificationComplianceLambda"
           
   PermissionForEventsToInvokeLambda: 
     Type: AWS::Lambda::Permission
     Properties: 
-      FunctionName: !Ref "HelloWorldLambda"
+      FunctionName: !Ref "RiotintoQualificationComplianceLambda"
       Action: "lambda:InvokeFunction"
       Principal: "events.amazonaws.com"
       SourceArn: 
