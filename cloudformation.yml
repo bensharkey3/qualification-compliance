@@ -13,3 +13,28 @@ Resources:
       Code:
         S3Bucket: lambda-cloudformation-sourcecode-bucket
         S3Key: "hello-world-lambda/python-code.zip"
+
+  ScheduledRule: 
+    Type: AWS::Events::Rule
+    Properties: 
+      Description: "ScheduledRule"
+      ScheduleExpression: "rate(2 minutes)"
+      State: "ENABLED"
+      Targets: 
+        - 
+          Arn: 
+            Fn::GetAtt: 
+              - "HelloWorldLambda"
+              - "Arn"
+          Id: "HelloWorldLambda"
+          
+  PermissionForEventsToInvokeLambda: 
+    Type: AWS::Lambda::Permission
+    Properties: 
+      FunctionName: !Ref "HelloWorldLambda"
+      Action: "lambda:InvokeFunction"
+      Principal: "events.amazonaws.com"
+      SourceArn: 
+        Fn::GetAtt: 
+          - "ScheduledRule"
+          - "Arn"
