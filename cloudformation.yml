@@ -24,7 +24,7 @@ Resources:
     Type: AWS::Events::Rule
     Properties: 
       Description: "ScheduledRule"
-      ScheduleExpression: "rate(1 hour)"
+      ScheduleExpression: "cron(0 22 ? * MON-FRI *)"
       State: "ENABLED"
       Targets: 
         - 
