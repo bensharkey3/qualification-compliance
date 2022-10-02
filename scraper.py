@@ -9,8 +9,31 @@ from io import StringIO
 
 URL1 = "https://www.rtiocompliance.scodle.com/verify/5BGQ000"
 URL2 = "https://www.rtiocompliance.scodle.com/verify/649G000"
+URL3 = 'https://www.rtiocompliance.scodle.com/verify/9I12000'
+URL4 = 'https://www.rtiocompliance.scodle.com/verify/39O2000'
+URL5 = 'https://www.rtiocompliance.scodle.com/verify/8O82000'
+URL6 = 'https://www.rtiocompliance.scodle.com/verify/76PO000'
+URL7 = 'https://www.rtiocompliance.scodle.com/verify/4MK0000'
+URL8 = 'https://www.rtiocompliance.scodle.com/verify/9GQA000'
+URL9 = 'https://www.rtiocompliance.scodle.com/verify/96SQ000'
+URL10 = 'https://www.rtiocompliance.scodle.com/verify/19QC000'
+URL11 = 'https://www.rtiocompliance.scodle.com/verify/1ILI000'
+URL12 = 'https://www.rtiocompliance.scodle.com/verify/6L6K000'
 
-URLS = [URL1, URL2]
+URLS = [
+    URL1, 
+    URL2,
+    URL3,
+    URL4,
+    URL5,
+    URL6,
+    URL7,
+    URL8,
+    URL9,
+    URL10,
+    URL11,
+    URL12
+    ]
 
 def lambda_handler(event, context):
     """Run function"""
