@@ -8,12 +8,17 @@ Resources:
       FunctionName: riotinto-qualification-compliance
       Description: "runs a lambda for riotinto-qualification-compliance"
       Runtime: python3.8
-      Handler: riotinto-qualification-compliance.lambda_handler
+      Handler: scraper.lambda_handler
       Timeout: 120
       Role: arn:aws:iam::537808241319:role/service-role/account_balances_scraper_role
       Code:
         S3Bucket: lambda-cloudformation-sourcecode-bucket
         S3Key: "riotinto-qualification-compliance/scraper.zip"
+      Layers: 
+        - "arn:aws:lambda:ap-southeast-2:770693421928:layer:Klayers-p38-pandas:8"
+        - "arn:aws:lambda:ap-southeast-2:770693421928:layer:Klayers-p38-numpy:7"
+        - "arn:aws:lambda:ap-southeast-2:770693421928:layer:Klayers-p38-requests:7"
+        - "arn:aws:lambda:ap-southeast-2:770693421928:layer:Klayers-p38-beautifulsoup4:1"
 
   ScheduledRule: 
     Type: AWS::Events::Rule
