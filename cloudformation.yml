@@ -9,7 +9,7 @@ Resources:
       Description: "runs a lambda for riotinto-qualification-compliance"
       Runtime: python3.8
       Handler: scraper.lambda_handler
-      Timeout: 120
+      Timeout: 600
       Role: arn:aws:iam::537808241319:role/service-role/account_balances_scraper_role
       Code:
         S3Bucket: lambda-cloudformation-sourcecode-bucket
@@ -24,7 +24,7 @@ Resources:
     Type: AWS::Events::Rule
     Properties: 
       Description: "ScheduledRule"
-      ScheduleExpression: "cron(0 22 ? * MON-FRI *)"
+      ScheduleExpression: "cron(0 9-21 ? * MON-SAT *)"
       State: "ENABLED"
       Targets: 
         - 
