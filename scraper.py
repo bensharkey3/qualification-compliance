@@ -142,18 +142,20 @@ def main():
     df.drop('url', axis=1, inplace=True)
     df.rename(columns={0: 'url'}, inplace=True)
     df.sort_values(by=['days_to_expiry'], ascending=True, inplace=True)
+    df.reset_index(inplace=True, drop=True)
     
     # create pivot df
     dfpivot = pd.pivot_table(data=df, index=['name', 'emailsap'], columns='qualname', values='expires', aggfunc=[np.min]).reset_index()
+    dfpivot = dfpivot.droplevel(0, axis=1) 
 
     # write to s3
     csv_buffer = StringIO()
-
     df.to_html(csv_buffer)
-    s3client.put_object(Body=csv_buffer.getvalue(), ContentType='text/html', Bucket='riotinto-qualification-compliance', Key='extracts/' + 'summary')
+    s3client.put_object(Body=csv_buffer.getvalue(), ContentType='text/html', Bucket='riotinto-qualification-compliance', Key='summary.html')
 
+    csv_buffer = StringIO()
     dfpivot.to_html(csv_buffer)
-    s3client.put_object(Body=csv_buffer.getvalue(), ContentType='text/html', Bucket='riotinto-qualification-compliance', Key='extracts/' + 'pivoted')
+    s3client.put_object(Body=csv_buffer.getvalue(), ContentType='text/html', Bucket='riotinto-qualification-compliance', Key='pivoted.html')
 
 
 def lambda_handler(event, context):
