@@ -148,10 +148,10 @@ def main():
     # write to s3
     csv_buffer = StringIO()
 
-    df.to_csv(csv_buffer)
+    df.to_html(csv_buffer)
     s3client.put_object(Body=csv_buffer.getvalue(), Bucket='riotinto-qualification-compliance', Key='extracts/' + 'summary')
 
-    dfpivot.to_csv(csv_buffer)
+    dfpivot.to_html(csv_buffer)
     s3client.put_object(Body=csv_buffer.getvalue(), Bucket='riotinto-qualification-compliance', Key='extracts/' + 'pivoted')
 
 
