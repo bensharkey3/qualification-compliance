@@ -5,103 +5,99 @@ import numpy as np
 import boto3
 import datetime
 from io import StringIO
+import os
 
 
-URL1 = "https://www.rtiocompliance.scodle.com/verify/5BGQ000"
-URL2 = "https://www.rtiocompliance.scodle.com/verify/649G000"
-URL3 = 'https://www.rtiocompliance.scodle.com/verify/9I12000'
-URL4 = 'https://www.rtiocompliance.scodle.com/verify/39O2000'
-URL5 = 'https://www.rtiocompliance.scodle.com/verify/8O82000'
-URL6 = 'https://www.rtiocompliance.scodle.com/verify/76PO000'
-URL7 = 'https://www.rtiocompliance.scodle.com/verify/4MK0000'
-URL8 = 'https://www.rtiocompliance.scodle.com/verify/9GQA000'
-URL9 = 'https://www.rtiocompliance.scodle.com/verify/96SQ000'
-URL10 = 'https://www.rtiocompliance.scodle.com/verify/19QC000'
-URL11 = 'https://www.rtiocompliance.scodle.com/verify/1ILI000'
-URL12 = 'https://www.rtiocompliance.scodle.com/verify/6L6K000'
+# os.environ["AWS_ACCESS_KEY_ID"] = ''
+# os.environ["AWS_SECRET_ACCESS_KEY"] = ''
 
-URLS = [
-    URL1, 
-    URL2,
-    URL3,
-    URL4,
-    URL5,
-    URL6,
-    URL7,
-    URL8,
-    URL9,
-    URL10,
-    URL11,
-    URL12
-    ]
+# AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
+# AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
 
-def lambda_handler(event, context):
-    """Run function"""
+s3client = boto3.client('s3')
 
+# s3client = boto3.client(
+#     "s3",
+#     aws_access_key_id=AWS_ACCESS_KEY_ID,
+#     aws_secret_access_key=AWS_SECRET_ACCESS_KEY
+#     )
+
+
+def main():
+    '''runs main function
+    '''
+    # read csv from google sheet
+    dflinks = pd.read_csv('https://docs.google.com/spreadsheets/d/1Sm8AtTFJW2XaGl1yDiCrterOwos7cOQ7XSc-5kI4kHI' +
+                          '/export?gid=0&format=csv', 
+                          header=None)
+    
     # create empty df, populate by looping through url's
     df_all = pd.DataFrame(columns=['name', 'emailsap', 'qualname', 'obtained', 'expires'])
 
-    for i in URLS:
+    for i in dflinks[0]:
         page = requests.get(i)
         soup = BeautifulSoup(page.content, "html.parser")
         results = soup.find("body")
+        if results is not None:
+            elements_person = results.find_all("div", class_="userdetails")
+            elements_current = results.find_all("div", class_="result current")
+            if results.find_all("div", class_="result expired") is not None:
+                elements_expired = results.find_all("div", class_="result expired")
 
-        elements_person = results.find_all("div", class_="userdetails")
-        elements_current = results.find_all("div", class_="result current")
-        elements_expired = results.find_all("div", class_="result expired")
+            # create empty df, populate by looping through elements
+            df_person = pd.DataFrame(columns=['name', 'emailsap', 'url'])
 
-        # create empty df, populate by looping through elements
-        df_person = pd.DataFrame(columns=['name', 'emailsap'])
+            for job_element in elements_person:
+                lst = []
+                name_element = job_element.find("h3")
+                emailsap_element = job_element.find("h4")
 
-        for job_element in elements_person:
-            lst = []
-            name_element = job_element.find("h3")
-            emailsap_element = job_element.find("h4")
+                name = name_element.text.strip()
+                emailsap = emailsap_element.text.strip()
 
-            name = name_element.text.strip()
-            emailsap = emailsap_element.text.strip()
+                lst.append(name)
+                lst.append(emailsap)
+                lst.append(i)
+                lst = lst[0:3]
+                df_person.loc[len(df_person)] = lst
 
-            lst.append(name)
-            lst.append(emailsap)
-            lst = lst[0:2]
-            df_person.loc[len(df_person)] = lst
+            # create empty df, populate by looping through elements
+            df_current = pd.DataFrame(columns=['qualname', 'obtained', 'expires'])
 
-        # create empty df, populate by looping through elements
-        df_current = pd.DataFrame(columns=['qualname', 'obtained', 'expires'])
+            for job_element in elements_current:
+                lst = []
+                qualname_element = job_element.find("h2")
+                obtained_element = job_element.find("span", class_="obtained")
+                expires_element = job_element.find("span", class_="expires")
 
-        for job_element in elements_current:
-            lst = []
-            qualname_element = job_element.find("h2")
-            obtained_element = job_element.find("span", class_="obtained")
-            expires_element = job_element.find("span", class_="expires")
+                qualname = qualname_element.text.strip()
+                obtained = obtained_element.text.strip()
+                if expires_element is not None:
+                    expires = expires_element.text.strip()
 
-            qualname = qualname_element.text.strip()
-            obtained = obtained_element.text.strip()
-            expires = expires_element.text.strip()
+                lst.append(qualname)
+                lst.append(obtained)
+                lst.append(expires)
+                lst = lst[0:3]
+                df_current.loc[len(df_current)] = lst
 
-            lst.append(qualname)
-            lst.append(obtained)
-            lst.append(expires)
-            lst = lst[0:3]
-            df_current.loc[len(df_current)] = lst
+            # create empty df, populate by looping through elements
+            df_expired = pd.DataFrame(columns=['qualname', 'obtained', 'expires'])
 
-        # create empty df, populate by looping through elements
-        df_expired = pd.DataFrame(columns=['qualname', 'obtained', 'expires'])
+            for job_element in elements_expired:
+                lst = []
+                qualname_element = job_element.find("h2")
+                expires_element = job_element.find("span", class_="expired")
 
-        for job_element in elements_expired:
-            lst = []
-            qualname_element = job_element.find("h2")
-            expires_element = job_element.find("span", class_="expired")
+                qualname = qualname_element.text.strip()
+                obtained = pd.NaT
+                expires = expires_element.text.strip()
 
-            qualname = qualname_element.text.strip()
-            obtained = pd.NaT
-            expires = expires_element.text.strip()
-
-            lst.append(qualname)
-            lst.append(obtained)
-            lst.append(expires)
-            lst = lst[0:3]
-            df_expired.loc[len(df_expired)] = lst
+                lst.append(qualname)
+                lst.append(obtained)
+                lst.append(expires)
+                lst = lst[0:3]
+                df_expired.loc[len(df_expired)] = lst
 
 
         # join and concat the url's 3x df's into one
@@ -140,9 +136,25 @@ def lambda_handler(event, context):
     df['name'] = df['name'].str.replace(r'Name: ', '')
     df['emailsap'] = df['emailsap'].str.replace(r'SAP#: ', '')
     df['emailsap'] = df['emailsap'].str.replace(r'Email: ', '')
+    
+    # left join onto original df of links to ensure a row for each link if response failed
+    df = dflinks.merge(df, how='left', left_on=0, right_on='url')
+    df.drop('url', axis=1, inplace=True)
+    df.rename(columns={0: 'url'}, inplace=True)
+    
+    # create pivot df
+    dfpivot = pd.pivot_table(data=df, index=['name', 'emailsap'], columns='qualname', values='expires', aggfunc=[np.min]).reset_index()
 
-    filename = datetime.datetime.now().strftime('%Y-%m-%d--%H-%M-%p') + '.txt'
+    # write to s3
     csv_buffer = StringIO()
+
     df.to_csv(csv_buffer)
-    client = boto3.client('s3')
-    client.put_object(Body=csv_buffer.getvalue(), Bucket='riotinto-qualification-compliance', Key='extracts/' + filename)
+    s3client.put_object(Body=csv_buffer.getvalue(), Bucket='riotinto-qualification-compliance', Key='extracts/' + 'summary')
+
+    dfpivot.to_csv(csv_buffer)
+    s3client.put_object(Body=csv_buffer.getvalue(), Bucket='riotinto-qualification-compliance', Key='extracts/' + 'pivoted')
+
+
+def lambda_handler(event, context):
+    """Run function"""
+    main()
