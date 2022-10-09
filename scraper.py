@@ -150,10 +150,10 @@ def main():
     csv_buffer = StringIO()
 
     df.to_html(csv_buffer)
-    s3client.put_object(Body=csv_buffer.getvalue(), Bucket='riotinto-qualification-compliance', Key='extracts/' + 'summary')
+    s3client.put_object(Body=csv_buffer.getvalue(), ContentType='text/html', Bucket='riotinto-qualification-compliance', Key='extracts/' + 'summary')
 
     dfpivot.to_html(csv_buffer)
-    s3client.put_object(Body=csv_buffer.getvalue(), Bucket='riotinto-qualification-compliance', Key='extracts/' + 'pivoted')
+    s3client.put_object(Body=csv_buffer.getvalue(), ContentType='text/html', Bucket='riotinto-qualification-compliance', Key='extracts/' + 'pivoted')
 
 
 def lambda_handler(event, context):
