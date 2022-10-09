@@ -141,6 +141,7 @@ def main():
     df = dflinks.merge(df, how='left', left_on=0, right_on='url')
     df.drop('url', axis=1, inplace=True)
     df.rename(columns={0: 'url'}, inplace=True)
+    df.sort_values(by=['days_to_expiry'], ascending=True, inplace=True)
     
     # create pivot df
     dfpivot = pd.pivot_table(data=df, index=['name', 'emailsap'], columns='qualname', values='expires', aggfunc=[np.min]).reset_index()
